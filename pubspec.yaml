@@ -32,10 +32,7 @@ flutter:
   plugin:
     platforms:
       android:
-        package: com.example.youtube_downloader_totalxsoftware
-        pluginClass: YoutubeDownloaderTotalxsoftwarePlugin
       ios:
-        pluginClass: YoutubeDownloaderTotalxsoftwarePlugin
 
 screenshots:
   - description: "www.totalx.in"
