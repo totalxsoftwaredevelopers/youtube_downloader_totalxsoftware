@@ -8,7 +8,8 @@ import 'package:youtube_downloader_totalxsoftware/youtube_downloader_totalxsoftw
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await YoutubeDownloaderTotalxsoftware.initialize(
-    androidNotificationicon: 'resource://drawable/ic_launcher',
+    androidNotificationIcon: 'resource://drawable/ic_launcher',
+  
   );
   runApp(const MyApp());
 }
@@ -91,8 +92,9 @@ class _HomeScreenState extends State<HomeScreen> {
         this.progress = progress;
         setState(() {});
       },
-      onComplete: (file) {
+      onComplete: (file,thumbnail) {
         log('Download complete: ${file.path}');
+        log('Download complete thumbnail: ${thumbnail.path}');
         downloadFilePath = file.path;
         _playDownloadedVideo(file.path);
         setState(() {});

@@ -14,7 +14,7 @@ Future<void> mergeVideoAndAudio({
   required void Function(double progress) onProgress,
   required void Function(File file) onComplete,
 }) async {
-  final appDir = await getTemporaryDirectory();
+  final appDir = await getApplicationDocumentsDirectory();
   final outputFilePath =
       '${appDir.path}/${DateTime.now().millisecondsSinceEpoch}.mp4';
 

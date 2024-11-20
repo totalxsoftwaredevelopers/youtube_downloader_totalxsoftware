@@ -5,6 +5,7 @@ import 'dart:isolate';
 
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:video_url_validator/video_url_validator.dart';
 import 'package:youtube_downloader_totalxsoftware/service/get_youtube_id_from_url.dart';
@@ -25,7 +26,7 @@ class YoutubeDownloaderTotalxsoftware {
 
   // Initialize notifications and permissions
   static Future<void> initialize({
-    required String androidNotificationicon,
+    required String androidNotificationIcon,
   }) async {
     if (Platform.isAndroid) {
       PermissionStatus notificationPermissionStatus =
@@ -36,7 +37,7 @@ class YoutubeDownloaderTotalxsoftware {
     }
 
     AwesomeNotifications().initialize(
-      androidNotificationicon,
+      androidNotificationIcon,
       [
         NotificationChannel(
           channelKey: 'basic_channel',
@@ -65,7 +66,7 @@ class YoutubeDownloaderTotalxsoftware {
     required String ytUrl,
     required void Function(String e) error,
     required void Function(double progress) onProgress,
-    required void Function(File file) onComplete,
+    required void Function(File videoFile, File thumbFile) onComplete,
     required void Function(bool isLoading) onLoading,
     required Widget Function(
             List<VideoOnlyStreamInfo>, void Function(StreamInfo) onSelected)
@@ -94,6 +95,9 @@ class YoutubeDownloaderTotalxsoftware {
 
       final video = data['video'] as Video;
       final manifest = data['manifest'] as StreamManifest;
+
+      // Download thumbnail
+      final thumbFile = await _downloadThumbnail(video.thumbnails.highResUrl);
 
       // Check if manifest contains video streams
       if (manifest.videoOnly.isEmpty) {
@@ -127,9 +131,9 @@ class YoutubeDownloaderTotalxsoftware {
           onLoading(false);
         },
         onProgress: onProgress,
-        onComplete: (file) {
+        onComplete: (videoFile) {
           _isDownloading = false;
-          onComplete(file);
+          onComplete(videoFile, thumbFile);
           onLoading(false);
         },
       );
@@ -173,6 +177,15 @@ class YoutubeDownloaderTotalxsoftware {
       'video': video,
       'manifest': manifest,
     });
+  }
+
+  // Download thumbnail
+  Future<File> _downloadThumbnail(String thumbUrl) async {
+    final response = await http.get(Uri.parse(thumbUrl));
+    final directory = await Directory.systemTemp.createTemp();
+    final thumbFile = File('${directory.path}/thumbnail.jpg');
+    await thumbFile.writeAsBytes(response.bodyBytes);
+    return thumbFile;
   }
 
   // Show quality selection bottom sheet

@@ -1,6 +1,6 @@
 name: youtube_downloader_totalxsoftware
 description: "A Flutter package developed by TotalXSoftware for downloading YouTube videos with customizable quality options and progress notifications."
-version: 0.0.5
+version: 0.0.11
 homepage: "https://github.com/totalxsoftwaredevelopers/youtube_downloader_totalxsoftware"
 
 environment:
@@ -28,11 +28,9 @@ dev_dependencies:
 # following page: https://dart.dev/tools/pub/pubspec
 
 # The following section is specific to Flutter packages.
+
 flutter:
-  plugin:
-    platforms:
-      android:
-      ios:
+  generate: true
 
 screenshots:
   - description: "www.totalx.in"
