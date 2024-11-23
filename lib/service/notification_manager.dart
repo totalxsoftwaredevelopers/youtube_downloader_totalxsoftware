@@ -37,6 +37,7 @@ class NotificationManager {
       content: NotificationContent(
         id: notificationID,
         channelKey: 'download_channel',
+        
         title: title,
         body: 'Progress: ${(progress * 100).toStringAsFixed(1)}%',
         progress: progress,

@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:async';
 import 'dart:collection';
 import 'dart:io';
@@ -52,9 +54,11 @@ class YoutubeDownloaderTotalxsoftware {
           channelDescription: 'Displays download progress notifications.',
           defaultColor: const Color(0xFF2196F3),
           ledColor: Colors.white,
-          importance: NotificationImportance.High,
-          enableVibration: true,
-          onlyAlertOnce: true,
+          importance:
+              NotificationImportance.Low, // Lower importance to avoid floating
+          enableVibration: false, // Disable vibration
+          playSound: false, // Disable sound
+          onlyAlertOnce: true, // Prevent multiple alerts for updates
         ),
       ],
     );
@@ -96,23 +100,27 @@ class YoutubeDownloaderTotalxsoftware {
       final video = data['video'] as Video;
       final manifest = data['manifest'] as StreamManifest;
 
-      // Download thumbnail
-      final thumbFile = await _downloadThumbnail(video.thumbnails.highResUrl);
-
       // Check if manifest contains video streams
       if (manifest.videoOnly.isEmpty) {
         error("No available video streams");
         onLoading(false);
         return;
       }
+      // Download thumbnail
+      // final thumbFile = await _downloadThumbnail(video.thumbnails.highResUrl);
 
       // Show video quality selection
-      final selectedStream = await _showQualitySelection(
-        context,
-        videos: manifest.videoOnly,
-        qualityBuilderSheet: qualityBuilderSheet,
-      );
-
+      // final selectedStream = await
+      final date = await Future.wait([
+        _showQualitySelection(
+          context,
+          videos: manifest.videoOnly,
+          qualityBuilderSheet: qualityBuilderSheet,
+        ),
+        _downloadThumbnail(video.thumbnails.highResUrl),
+      ]);
+      final selectedStream = date[0] as StreamInfo?;
+      final thumbFile = date[1] as File;
       if (selectedStream == null) {
         onLoading(false);
         return;
@@ -183,7 +191,8 @@ class YoutubeDownloaderTotalxsoftware {
   Future<File> _downloadThumbnail(String thumbUrl) async {
     final response = await http.get(Uri.parse(thumbUrl));
     final directory = await Directory.systemTemp.createTemp();
-    final thumbFile = File('${directory.path}/thumbnail.jpg');
+    final thumbFile = File(
+        '${directory.path}/thumbnail_${DateTime.now().millisecondsSinceEpoch}.jpg');
     await thumbFile.writeAsBytes(response.bodyBytes);
     return thumbFile;
   }
